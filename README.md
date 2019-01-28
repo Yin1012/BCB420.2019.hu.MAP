@@ -9,7 +9,7 @@
 #### 2.1 Data semantics
 ## 3 Data download and cleanup
 ## 4 Mapping ENSEMBL IDs to HGNC symbols
-#### 5 Network statistics
+## 5 Network statistics
 ## 6 Biological validation: network properties
 ## 7 Annotation of the example gene set
 ## 8 References
