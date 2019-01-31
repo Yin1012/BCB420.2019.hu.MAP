@@ -19,6 +19,13 @@ You may also need to download additional file: Enrichment table and Edge table.
 ![alt text](http://msb.embopress.org/sites/default/files/highwire/msb/13/6/932/embed/graphic-1.gif)
 <br /> This data integrated three protein interaction networks, BioPlex, Hein et al, and Wan et al into an combined protein complex network and clustered to identify protein complexes through the synthesis of over 9,000 published mass spectrometry experiment. Parameters for the SVM and clustering algorithms were optimized on a training set of literature‐curated complexes and validated on a test set of complexes.
 ## 3 Data download and cleanup
+To download this package related hu.MAP data:
+1. Navigate to the [hu.MAP database download page](http://proteincomplexes.org/download)
+2. Click following files to download:
+Protein Interaction Network with probability scores (genenames)
+Enrichment table
+Edge table
+3. Place them in the same directory.
 ## 4 Mapping ENSEMBL IDs to HGNC symbols
 ## 5 Network statistics
 ## 6 Biological validation: network properties
