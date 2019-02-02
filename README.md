@@ -26,7 +26,91 @@ Protein Interaction Network with probability scores (genenames)
 Enrichment table
 Edge table
 3. Place them in the same directory.
-## 4 Mapping ENSEMBL IDs to HGNC symbols
+## 4 Mapping Entrez IDs to HGNC symbols
+2. Click following files to download:
+<br />Protein Complex Map
+```txt
+# Example
+# Each line represent a complex and the listed genes() are composed 
+153129 10670 64121
+441502 3024
+2648 26009 10474 57325 8850 55689 6871
+3189 144983
+
+```
+<br />Protein Complex Map (genenames)
+```txt
+# Example
+# Each line represent a complex and the listed genes(HGNC symbols) are composed 
+SLC38A9	RRAGA	RRAGC
+441502	HIST1H1A
+KAT2A	ZZZ3	TADA3	KAT14	KAT2B	YEATS2	TADA2A
+HNRNPH3	HNRNPA1L2
+
+```
+<br />Protein Interaction Network with probability scores
+```txt
+# Example
+# Each line represent a co-protein (Entrez IDs) complex with the corresponding svm probability score 
+996	64682	1.0
+9861	5706	1.0
+9861	5700	1.0
+9774	9967	1.0
+```
+<br />Protein Interaction Network with probability scores (genenames)
+```txt
+# Example
+# Each line represent a co-protein (HGNC symbols) complex with the corresponding svm probability score 
+9YEATS4	VPS72	1.0
+STON2	AP2M1	1.0
+SRSF9	SRSF1	1.0
+SNRPA1	SNRPD1	1.0
+```
+<br />Enrichment table
+```txt
+# Example
+# Output from gprofiler for each complex, FDR-corrected hypergeometric p <= 0.05
+complex_id	corr_pval	t_count	q_count	qandt_count	qandt_by_q	qandt_by_t	term_id	t_type	t_group	t_name	depth_in_group	qandt_list
+0	1.60e-08	24	3	3	1.000	0.125	GO:0071230	BP	1	cellular response to amino acid stimulus	1	Q9HB90,Q7L523,Q8NBW4
+0	1.82e-08	25	3	3	1.000	0.120	GO:0032008	BP	1	positive regulation of TOR signaling	1	Q9HB90,Q7L523,Q8NBW4
+0	2.31e-08	27	3	3	1.000	0.111	GO:0043200	BP	1	response to amino acid	1	Q9HB90,Q7L523,Q8NBW4
+```
+<br />Edge table
+```txt
+# Example
+# List of edges in the complex map with svm probability score and boolean values for each evidence type determining support for the edge
+# Complex_id is made of complex number and gene ids
+complex_id	corr_pval	t_count	q_count	qandt_count	qandt_by_q	qandt_by_t	term_id	t_type	t_group	t_name	depth_in_group	qandt_list
+id1	score	fractions	bioplex	hein	bioplex_prey	hein_prey
+0_153129 (pp) 0_10670	0.6968840000000001	False	True	False	True	False
+0_153129 (pp) 0_64121	0.5299699999999999	False	False	False	True	False
+0_10670 (pp) 0_64121	0.9627049999999999	False	True	False	True	False
+```
+3. Place them in the same directory.
+## 4 Mapping Entrez IDs to HGNC symbols
+hu.Map's data has two versions. One version uses Entrez ID and another version uses gene symbol. Although this database came out only at 2017 and the possibility that HGNC symbols update is small, the version of using gene symbol maybe out-dated in the future. Therefore, we provide a way to check and update HGNC symbols.
+
+Preparation:
+BioMart
+
+### 4.1 Import all data into R
+
+
+### 4.2 Mapping from  Entrez ID to HGNC symbol and Check HGNC symbol 
+&nbsp;
+
+```R
+
+  # Use bioMart to map Entrez to HGNC symbols
+  
+  myMart <- biomaRt::useMart("ensembl", dataset="hsapiens_gene_ensembl")
+
+  dbIDs <- biomaRt::getBM(attributes=c('entrezgene','hgnc_symbol'),mart = ensembl)
+
+  # Check if genenames in the file is the same as in dbIDS
+  
+```
+&nbsp;
 ## 5 Network statistics
 ## 6 Biological validation: network properties
 ## 7 Annotation of the example gene set
