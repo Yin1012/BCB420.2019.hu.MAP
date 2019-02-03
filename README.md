@@ -94,13 +94,24 @@ Preparation:
 BioMart
 
 ### 4.1 Import all data into R
-
+   ```R
+   #for all data file
+   tmp <- read.table(filepath,
+                          sep  = " ",
+                         fill=TRUE)
+   tmp_genename <- read.table(filepath,
+                          sep  ='\t',
+                         fill=TRUE)
+   ```
 
 ### 4.2 Mapping from  Entrez ID to HGNC symbol and Check HGNC symbol 
 &nbsp;
 
-```R
-
+```R 
+  # Fetch HGNC from github
+  myURL <- paste0("https://github.com/hyginn/",
+                "BCB420-2019-resources/blob/master/HGNC.RData?raw=true")
+  load(url(myURL))
   # Use bioMart to map Entrez to HGNC symbols
   
   myMart <- biomaRt::useMart("ensembl", dataset="hsapiens_gene_ensembl")
@@ -108,8 +119,45 @@ BioMart
   dbIDs <- biomaRt::getBM(attributes=c('entrezgene','hgnc_symbol'),mart = ensembl)
 
   # Check if genenames in the file is the same as in dbIDS
-  
+ sej <- matrix( ncol = 3)
+ for (i in 1:20){
+           for (n in 1:ncol(normal_genename)){
+                   if (!((normal_genename[i,n]) %in% HGNC$sym) & nchar(sub('\\.[0-9]+', '', normal_genename[i,n])) != 0){ sej <- rbind(sej,c(toString(normal_genename[i,n]),  i,n))}
+                   
+          }}
+  ```
+  Now, we face serveral conditions for changing unsame genenames to latest genenames
+  1) The unsame symbols are in either HGNC$prev or HGNC$synonym.
+  We update in file
+  2) The unsame symbols are gene IDS
+   We update in file in file
+  ``` 
+   
+   for (i in 1:nrow(sej)) {
+    #The unsame symbols are in either HGNC$prev or HGNC$synonym.
+    iPrev <- grep(sej[i][1], HGNC$prev)[1] # take No. 1 if there are several
+    if (!is.na(iPrev)) {
+        row <- sej[i][2]
+        col <- sej[i][3]
+        tmp_genename[row][col] <- HGNC$sym[iPrev]
+    } else {
+        iSynonym <- grep(sej[i][1], HGNC$synonym)[1]
+        if (!is.na(iSynonym)) {
+            row <- sej[i][2]
+        col <- sej[i][3]
+        tmp_genename[row][col] <- HGNC$sym[synonym]
+        } else {
+        #The unsame symbols are gene IDS
+            iGeneids <- grep(sej[i][1], HGNC$GeneID)
+            if (!is.na(iGeneids)) {
+                row <- sej[i][2]
+            col <- sej[i][3]
+            tmp_genename[row][col] <- HGNC$sym[iGeneids]
+        
+    }
+}
 ```
+
 &nbsp;
 ## 5 Network statistics
 ## 6 Biological validation: network properties
