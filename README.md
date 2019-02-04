@@ -87,7 +87,7 @@ id1	score	fractions	bioplex	hein	bioplex_prey	hein_prey
 0_10670 (pp) 0_64121	0.9627049999999999	False	True	False	True	False
 ```
 3. Place them in the same directory.
-## 4 Mapping Entrez IDs to HGNC symbols
+## 4 Update HGNC symbols
 hu.Map's data has two versions. One version uses Entrez ID and another version uses gene symbol. Although this database came out only at 2017 and the possibility that HGNC symbols update is small, the version of using gene symbol maybe out-dated in the future. Therefore, we provide a way to check and update HGNC symbols.
 
 Preparation:
@@ -101,10 +101,10 @@ BioMart
                          fill=TRUE)
    tmp_genename <- read.table(filepath,
                           sep  ='\t',
-                         fill=TRUE)
+                         fill=TRUE,stringsAsFactors = FALSE)
    ```
 
-### 4.2 Mapping from  Entrez ID to HGNC symbol and Check HGNC symbol 
+### 4.2 Update HGNC symbol 
 &nbsp;
 
 ```R 
@@ -125,42 +125,61 @@ BioMart
                    if (!((normal_genename[i,n]) %in% HGNC$sym) & nchar(sub('\\.[0-9]+', '', normal_genename[i,n])) != 0){ sej <- rbind(sej,c(toString(normal_genename[i,n]),  i,n))}
                    
           }}
+  #Delete first line that only contain NA
+  sej <- sej[2:nrow(sej),]
   ```
   Now, we face serveral conditions for changing unsame genenames to latest genenames
   1) The unsame symbols are in either HGNC$prev or HGNC$synonym.
   We update in file
-  2) The unsame symbols are gene IDS
-   We update in file in file
+  2) The unsame symbols are gene IDs
+   We update in file
+  3) The unsame symbols are Ensmbol IDs
   ``` 
    
-   for (i in 1:nrow(sej)) {
+ for (i in 1:nrow(sej)) {
     #The unsame symbols are in either HGNC$prev or HGNC$synonym.
-    iPrev <- grep(sej[i][1], HGNC$prev)[1] # take No. 1 if there are several
+    iPrev <- grep(sej[i, 1], HGNC$prev)[1] # take No. 1 if there are several
     if (!is.na(iPrev)) {
-        row <- sej[i][2]
-        col <- sej[i][3]
-        tmp_genename[row][col] <- HGNC$sym[iPrev]
+        row <- as.numeric(sej[i, 2])
+        col <- as.numeric(sej[i,3])
+        tmp_genename[row,col] <- HGNC$sym[iPrev]
+        sej[i,1] <- "changed"
     } else {
-        iSynonym <- grep(sej[i][1], HGNC$synonym)[1]
+        iSynonym <- grep(sej[i, 1], HGNC$synonym)[1]
         if (!is.na(iSynonym)) {
-            row <- sej[i][2]
-        col <- sej[i][3]
-        tmp_genename[row][col] <- HGNC$sym[synonym]
-        } else {
-        #The unsame symbols are gene IDS
-            iGeneids <- grep(sej[i][1], HGNC$GeneID)
+            row <- as.numeric(sej[i,2])
+            col <- as.numeric(sej[i,3])
+            tmp_genename[row, col] <- HGNC$sym[iSynonym]
+            sej[i,1] <- "changed"
+        }else {
+            #The unsame symbols are gene IDS
+            iGeneids <- grep(sej[i, 1], HGNC$GeneID)[1]
             if (!is.na(iGeneids)) {
-                row <- sej[i][2]
-            col <- sej[i][3]
-            tmp_genename[row][col] <- HGNC$sym[iGeneids]
-        
-    }
-}
+                row <- as.numeric(sej[i, 2])
+                col <- as.numeric(sej[i, 3])
+                tmp_genename[row, col] <- HGNC$sym[iGeneids]
+                sej[i, 1] <- "changed"
+            } else {
+                #The unsame symbols are ensembl ID
+                iEnsids <- grep(sej[i, 1], HGNC$EnsID)[1]
+                if (!is.na(iEnsids)) {
+                    row <- as.numeric(sej[i, 2])
+                    col <- as.numeric(sej[i, 3])
+                    tmp_genename[row, col] <- HGNC$sym[iEnsids]
+                    sej[i, 1] <- "changed"
+                }            
+            }
+        }}}
+```
+Now, in ```sej``` we have left ids that cannot mapping to other known symbols. So, we will change them into NA.
+```
+for (i in 1:nrow(sej)) {
+         if (!identical(sej[i,1], "changed")){row <- as.numeric(sej[i, 2])
+        col <- as.numeric(sej[i, 3]) 
+    dup_geno[row, col] <- NA}}
 ```
 
-&nbsp;
-## 5 Network statistics
-## 6 Biological validation: network properties
-## 7 Annotation of the example gene set
-## 8 References
-## 9 Acknowledgements
+### 4.3 Final validation
+## 5 Annotation  gene set
+## 6 References
+## 7 Acknowledgements
