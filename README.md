@@ -202,12 +202,12 @@ for (i in 1:nrow(dup_geno)){
 
 hist(newdf,
      
-     ylim=c(0,4000),col = "#3fafb388",
+     ylim=c(0,2000),col = "#3fafb388",
      main = "Number of subunit of complex distribution",
      xlab = "number of subunit in a complex ",
      ylab = "Counts")
 ```
-
+![hist](./inst/img/numSubunit_analysis.Rplot.png)
 ### 5.2 Co-complex score statistics
 We want to know the distribution of co-complex
 
