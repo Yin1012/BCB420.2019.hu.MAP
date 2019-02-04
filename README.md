@@ -181,5 +181,38 @@ for (i in 1:nrow(sej)) {
 
 ### 4.3 Final validation
 ## 5 Annotation  gene set
+First, we need to analyze our hu.MAP.
+
+### 5.1 Complex statistics
+We need to know how number of subunit of complex distribution
+
+```
+df <- matrix(0,nrow = ncol(dup_geno))
+
+for (i in 1:nrow(dup_geno)){
+          nSubunit <- 0
+          n <- 1
+          for (n in 1:ncol(dup_geno)){
+                  if (is.na(dup_geno[i,n])){
+                        nSubunit <- nSubunit + 1
+             } else if (!nchar(dup_geno[i,n]) == 0){
+                  nSubunit <- nSubunit + 1}
+              df[i,1] <- nSubunit}
+     }
+
+hist(newdf,
+     
+     ylim=c(0,4000),col = "#3fafb388",
+     main = "Number of subunit of complex distribution",
+     xlab = "number of subunit in a complex ",
+     ylab = "Counts")
+```
+
+### 5.2 Co-complex score statistics
+We want to know the distribution of co-complex
+
+### 5.3 Network statistics
+we want
+###
 ## 6 References
 ## 7 Acknowledgements
