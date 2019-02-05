@@ -117,8 +117,12 @@ id1	score	fractions	bioplex	hein	bioplex_prey	hein_prey
 hu.Map's data has two versions. One version uses Entrez ID and another version uses gene symbol. Although this database came out only at 2017 and the possibility that HGNC symbols update is small, the version of using gene symbol maybe out-dated in the future. Therefore, we provide a way to check and update HGNC symbols.
 
 Preparation:
-BioMart
-
+```igraph``` is a package for everything graph related. We use it here to compute some statistics on the hu.MAP and example graphs and plot.  
+```
+if (! requireNamespace("igraph")) {
+  install.packages("igraph")
+}
+```
 ### 4.1 Import all data into R
    ```R
    # For all data file 
