@@ -489,4 +489,9 @@ plot(graph,
 ```
 ![network_example_gene_list](./inst/img/example_network.Rplot.png)
 ## 6 References
+
+The workflow is followed the instruction in [BCB420.2019.hu.MAP](https://github.com/Yin1012/BCB420.2019.hu.MAP/tree/master/inst/img). Some code is re-edited from the same package. The background knowledge comes from  [ABC-Units project](https://github.com/hyginn/ABC-units) (Steipe, 2016-1019).
+*Kevin Drew, Chanjae Lee, Ryan L Huizar, Fan Tu, Blake Borgeson, Claire D McWhite, Yun Ma, John B Wallingford, Edward M Marcotte Integration of over 9,000 mass spectrometry experiments builds a global map of human protein complexes. Molecular Systems Biology (2017) 13, 932. DOI 10.15252/msb.20167490
 ## 7 Acknowledgements
+Thanks to Dr.Borris.
+<!-- [END] -->
