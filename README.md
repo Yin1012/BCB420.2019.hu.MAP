@@ -217,7 +217,7 @@ hist(df[,1],
      xlab = "number of subunit in a complex ",
      ylab = "Counts")
 ```
-![hist](./inst/img/numSubunit_analysis.Rplot.png)
+![hist_num_subunit](./inst/img/numSubunit.Rplot.png)
 
 We also want to the distribution of pvalue in enrichments of complex.
 
@@ -235,6 +235,7 @@ hist(df[,1],xlim = c(0, 0.055),ylim = c(0, 150000),breaks = 150000
      xlab = "p-value of a complex's enrichment ",
      ylab = "Counts")
 ```
+![hist_pvalue](./inst/img/pvalue.Rplot.png)
 ### 5.2 Co-complex score statistics
 We want to know the distribution of possibility score of all co-complex.
 ```
@@ -246,6 +247,7 @@ hist(score[,3], ylim = c(0,10000), breaks = 40
      xlab = "possibility score in a co-complex ",
      ylab = "Counts")
 ```
+![hist_co_complex](./inst/img/posScore.Rplot.png)
 ### 5.3 Network statistics
 we want to the complexity of the intereaction in the  Network. First, we want to know how many edges there can be in one gene.
 
