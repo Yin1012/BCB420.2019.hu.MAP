@@ -187,10 +187,80 @@ for (i in 1:nrow(sej)) {
         col <- as.numeric(sej[i, 3]) 
     dup_geno[row, col] <- NA}}
 ```
+### 4.3 Create a mapping tool
+The mapping tool is created for recording gene ID and corresbonding HGNC symbol and the complex number that gene belong to. We will also include edge information into it.
+```
+# The column number of each gene is the sum of 3 (gene ID and corresbonding HGNC symbol and the complex number) and 7 (information we want in the edge data)
+# geneList can be get from analysis of network. It caclulate how many edges for each gene.
+mapping_tool <- matrix("", sum(genelist[,2]), 10 )
+geneMapping <- matrix("", 1, 3)
+for (i in 1:nrow(normal)){
+    for (n in 1:ncol(normal)){
+        if (nchar(normal[i,n]) != 0){geneMapping <- rbind(geneMapping, c(normal[i,n], dup_geno[i,n], i,"","","","","","",""))}}
+}
+geneMapping <- geneMapping[2:nrow(geneMapping),]   
 
+# Split complex information and gene id in each edge information 
+edgeSplit <- matrix("", nrow(edge), 9 )
+for (i in 1:nrow(edge)){
+    firstID <- unlist(strsplit(edge[i,1],"_"))[2]
+    secondID <- unlist(strsplit(edge[i,3],"_"))[2]
+    complexNumber <- unlist(strsplit(edge[i,1],"_"))[1]
+    edgeSplit[i,1] <- complexNumber
+    edgeSplit[i,2] <- firstID
+    edgeSplit[i,3] <- secondID
+    for (m in 4:9){
+        edgeSplit[i, m] <- edge[i, m]
+    }
+    }
+# mapping geneID to gene symbols
+r (i in 1:nrow(edgeSplit)){
+    edgeSplit[i,2] <- geneMapping[which(edgeSplit[i,2] == geneMapping[,1])[1],2]
+    edgeSplit[i,3] <- geneMapping[which(edgeSplit[i,3] == geneMapping[,1])[1],2]}
+
+      
+# Assign correct edge to each gene
+ n <- 1
+ 
+for (i in 1:nrow(geneList)){
+    # Check if the gene exists in first ID and have same complex number
+    location <- which(geneMapping[i,2] == edgeSplit[,2], geneMapping[i,3] == edgeSplit[,1])
+    # Copy each edge information
+    if (length(location) != 0) {
+    for (m in 1:length(location)){
+        for (t in 1:3){
+            mapping_tool[n, t] <- geneMapping[i, t]
+        }
+        
+       
+            mapping_tool[n,4] <- edgeSplit[location[m], 3]
+        
+        for (t in 4:9){
+            mapping_tool[n, t+1] <- edge[i, t]
+        }
+        n <- n + 1
+    }}
+    # Check if the gene exists in second ID and have same complex number
+    location <- which(geneMapping[i,1] == edgeSplit[,3], geneMapping[i,3] == edgeSplit[,1])
+    if (length(location) != 0) {
+    for (m in 1:length(location)){
+        for (t in 1:3){
+            mapping_tool[n, t] <- geneMapping[i, t]
+        }
+        
+            mapping_tool[n,4] <- edgeSplit[location[m], 2]
+        
+        for (t in 4:9){
+            mapping_tool[n, t+1] <- edge[i, t]
+        }
+        n <- n + 1
+    }}
+}
+       
+
+```
 ### 4.3 Final validation
-## 5 Create mapping tools
-gene -> complex another genes -> enrichment information -> edge information
+
 ## 5 Annotation  gene set
 First, we need to analyze our hu.MAP.
 
@@ -280,5 +350,143 @@ genelist <- as.data.frame(genelist)
 ```
 ![hist_pvalue](./inst/img/complexity.Rplot.png)
 
+Now, we need to look at the netwrok property.
+
+```
+df <- matrix("",nrow(edge), 2)
+df[,1] <- edge[,1]
+df[,2] <- edge[,3]
+graph <- igraph::graph_from_edgelist(df)
+tmp <- igraph::degree(graph)
+freqRank <- table(tmp)
+x <- log10(as.numeric(names(freqRank)) + 1)
+y <- log10(as.numeric(freqRank))
+
+# Plot
+plot(x, y,
+type = "b",
+pch = 21, bg = "#7FFF00",
+xlab = "log(Rank)", ylab = "log(frequency)",
+main = "Zipf's law governing the hu.MAP network"
+)
+# Add baseline
+ab <- lm(y ~ x)
+abline(ab, col = "#0000FF", lwd = 0.7)
+```
+![hist_pvalue](./inst/img/zip.Rplot.png)
+### 5.4 Annotation gene set
+
+```
+# Copy the gene set from BCB420 project
+
+exmSet <- c("AMBRA1", "ATG14", "ATP2A1", "ATP2A2", "ATP2A3", "BECN1", "BECN2",
+          "BIRC6", "BLOC1S1", "BLOC1S2", "BORCS5", "BORCS6", "BORCS7",
+          "BORCS8", "CACNA1A", "CALCOCO2", "CTTN", "DCTN1", "EPG5", "GABARAP",
+          "GABARAPL1", "GABARAPL2", "HDAC6", "HSPB8", "INPP5E", "IRGM",
+          "KXD1", "LAMP1", "LAMP2", "LAMP3", "LAMP5", "MAP1LC3A", "MAP1LC3B",
+          "MAP1LC3C", "MGRN1", "MYO1C", "MYO6", "NAPA", "NSF", "OPTN",
+          "OSBPL1A", "PI4K2A", "PIK3C3", "PLEKHM1", "PSEN1", "RAB20", "RAB21",
+          "RAB29", "RAB34", "RAB39A", "RAB7A", "RAB7B", "RPTOR", "RUBCN",
+          "RUBCNL", "SNAP29", "SNAP47", "SNAPIN", "SPG11", "STX17", "STX6",
+          "SYT7", "TARDBP", "TFEB", "TGM2", "TIFA", "TMEM175", "TOM1",
+          "TPCN1", "TPCN2", "TPPP", "TXNIP", "UVRAG", "VAMP3", "VAMP7",
+          "VAMP8", "VAPA", "VPS11", "VPS16", "VPS18", "VPS33A", "VPS39",
+          "VPS41", "VTI1B", "YKT6")
+          
+
+# which example genes are not among the known nodes?
+x <- which( ! (exmSet %in% c(edgeSplit[,2], edgeSplit[,3])))
+cat(sprintf("\t%s\t(%s)\n", HGNC[xSet[x], "sym"], HGNC[xSet[x], "name"]))
+
+   #BECN2	(beclin 2)
+ 	#BIRC6	(baculoviral IAP repeat containing 6)
+ 	#CACNA1A	(calcium voltage-gated channel subunit alpha1 A)
+ 	#EPG5	(ectopic P-granules autophagy protein 5 homolog)
+ 	#INPP5E	(inositol polyphosphate-5-phosphatase E)
+ 	#IRGM	(immunity related GTPase M)
+ 	#LAMP2	(lysosomal associated membrane protein 2)
+ 	#LAMP3	(lysosomal associated membrane protein 3)
+ 	#LAMP5	(lysosomal associated membrane protein family member 5)
+ 	#MAP1LC3A	(microtubule associated protein 1 light chain 3 alpha)
+ 	#MAP1LC3B	(microtubule associated protein 1 light chain 3 beta)
+ 	#MAP1LC3C	(microtubule associated protein 1 light chain 3 gamma)
+ 	#NSF	(N-ethylmaleimide sensitive factor, vesicle fusing ATPase)
+ 	#PLEKHM1	(pleckstrin homology and RUN domain containing M1)
+ 	#RAB20	(RAB20, member RAS oncogene family)
+ 	#RAB21	(RAB21, member RAS oncogene family)
+ 	#RAB29	(RAB29, member RAS oncogene family)
+ 	#RAB39A	(RAB39A, member RAS oncogene family)
+ 	#RAB7B	(RAB7B, member RAS oncogene family)
+ 	#RUBCN	(rubicon autophagy regulator)
+ 	#RUBCNL	(rubicon like autophagy enhancer)
+ 	#SPG11	(SPG11, spatacsin vesicle trafficking associated)
+ 	#STX17	(syntaxin 17)
+ 	#SYT7	(synaptotagmin 7)
+ 	#TGM2	(transglutaminase 2)
+ 	#TIFA	(TRAF interacting protein with forkhead associated domain)
+ 	#TMEM175	(transmembrane protein 175)
+ 	#TPCN2	(two pore segment channel 2)
+ 	#TPPP	(tubulin polymerization promoting protein)
+ 	#VAMP7	(vesicle associated membrane protein 7)
+ 	#VPS39	(VPS39, HOPS complex subunit)
+# Get example genes that are contained in our mapping.
+
+firstCol <- which( mapping_tool[,2]  %in% intersect(mapping_tool[,4],exmSet) )
+secondCol <- which( mapping_tool[,4]  %in% intersect(mapping_tool[,4],exmSet) )
+
+# Overlapping is the location of example gene
+exmEdgelistLocation <- intersect(firstCol,secondCol)
+ exmEdgeList <- matrix("", length(exmEdgelistLocation),2)
+ 
+ for (i in 1:length(exmEdgelistLocation)){
+     exmEdgeList[i,1] <- mapping_tool[exmEdgelistLocation[i],2]
+     exmEdgeList[i,2] <- mapping_tool[exmEdgelistLocation[i],4]}
+     
+ ```
+### 5.5 Biological validation:network properties
+```
+graph <- igraph::graph_from_edgelist(exmEdgeList)
+tmp <- igraph::degree(graph)
+freqRank <- table(tmp)
+x <- log10(as.numeric(names(freqRank)) + 1)
+y <- log10(as.numeric(freqRank))
+
+plot(x, y,
+type = "b",
+pch = 21, bg = "#7FFF00",
+xlab = "log(Rank)", ylab = "log(frequency)",
+main = "Zipf's law governing the hu.MAP network"
+)
+ab <- lm(y ~ x)
+abline(ab, col = "#FF000077", lwd = 0.7)
+```
+```
+# Get list of en highest degree
+x <- sort(dg, decreasing = TRUE)[1:10]
+cat(sprintf("\t%d:\t%s\t(%s)\n", x, names(x), HGNC[names(x), "name"]))
+
+   #32:	SNAP29	(synaptosome associated protein 29)
+ 	#26:	BORCS6	(BLOC-1 related complex subunit 6)
+ 	#20:	BORCS5	(BLOC-1 related complex subunit 5)
+ 	#19:	BORCS8	(BLOC-1 related complex subunit 8)
+ 	#19:	NAPA	(NSF attachment protein alpha)
+ 	#16:	VAMP8	(vesicle associated membrane protein 8)
+ 	#16:	STX6	(syntaxin 6)
+ 	#16:	VTI1B	(vesicle transport through interaction with t-SNAREs 1B)
+ 	#14:	BLOC1S1	(biogenesis of lysosomal organelles complex 1 subunit 1)
+ 	#13:	BORCS7	(BLOC-1 related complex subunit 7)
+
+# Plot the network
+par(mar=c(0,0,0,0))
+plot(graph,
+     layout = igraph::layout_with_fr(graph),vertex.color=heat.colors(max(igraph::degree(graph)+1))[igraph::degree(graph)+1],  vertex.size = 3 + (1 * igraph::degree(graph)),
+     vertex.label.cex = 0.2 + (0.02 * igraph::degree(graph)),
+     edge.width = 2,
+     vertex.label = igraph::V(graph)$name,
+     vertex.label.family = "sans")
+
+# we see several cliques (or near-cliques), possibly indicative of
+# physical complexes.
+```
 ## 6 References
 ## 7 Acknowledgements
