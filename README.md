@@ -280,5 +280,29 @@ genelist <- as.data.frame(genelist)
 ```
 ![hist_pvalue](./inst/img/complexity.Rplot.png)
 
+Now, we need to look at the netwrok property.
+
+```
+df <- matrix("",nrow(edge), 2)
+df[,1] <- edge[,1]
+df[,2] <- edge[,3]
+graph <- igraph::graph_from_edgelist(df)
+tmp <- igraph::degree(graph)
+freqRank <- table(tmp)
+x <- log10(as.numeric(names(freqRank)) + 1)
+y <- log10(as.numeric(freqRank))
+
+# Plot
+plot(x, y,
+type = "b",
+pch = 21, bg = "#7FFF00",
+xlab = "log(Rank)", ylab = "log(frequency)",
+main = "Zipf's law governing the hu.MAP network"
+)
+# Add baseline
+ab <- lm(y ~ x)
+abline(ab, col = "#0000FF", lwd = 0.7)
+```
+![hist_pvalue](./inst/img/zip.Rplot.png)
 ## 6 References
 ## 7 Acknowledgements
