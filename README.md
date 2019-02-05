@@ -8,7 +8,24 @@ This package describes the workflow to utilize human protein complex data from t
 
 The package serves dual duty, as an RStudio project, as well as an R package that can be installed. Package checks pass without errors, warnings, or notes.
 #### In this project...
-
+```
+ --BCB420.2019.hu.MAp/
+   |__.gitignore
+   |__.Rbuildignore
+   |__BCB420.2019.hu.MAP.Rproj
+   |__DESCRIPTION
+   |__dev/
+   |__inst/
+      |__extdata/
+         |_mapping_tools.rds
+      |__img/
+         |__[...]                  # image sources for .md document
+      |__scripts/
+   |__LICENSE
+   |__NAMESPACE
+   |__R/
+   |__README.md                    
+```
 ## 2 hu.MAP Data
 hu.MAP refers to Human Protein Complex Map which attempts to address the lack of understanding of protein complex in human. This database combines serveral large scale protein interaction datasets to get most comprehensive understanding of human protein complexes. Protein inteaction network shows co-compelx potein pairs that are observed in protein complex map with corresponding probability score.The enrichments data and edge data are also included in the additional files of hu.MAP. 
 
@@ -100,8 +117,12 @@ id1	score	fractions	bioplex	hein	bioplex_prey	hein_prey
 hu.Map's data has two versions. One version uses Entrez ID and another version uses gene symbol. Although this database came out only at 2017 and the possibility that HGNC symbols update is small, the version of using gene symbol maybe out-dated in the future. Therefore, we provide a way to check and update HGNC symbols.
 
 Preparation:
-BioMart
-
+```igraph``` is a package for everything graph related. We use it here to compute some statistics on the hu.MAP and example graphs and plot.  
+```
+if (! requireNamespace("igraph")) {
+  install.packages("igraph")
+}
+```
 ### 4.1 Import all data into R
    ```R
    # For all data file 
