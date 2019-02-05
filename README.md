@@ -66,6 +66,15 @@ STON2	AP2M1	1.0
 SRSF9	SRSF1	1.0
 SNRPA1	SNRPD1	1.0
 ```
+<br />Node table
+```
+# Example
+acc,clustid,clustid_key,genename,key,proteinname,uniprot_link
+Q8NBW4,0,0_153129,SLC38A9,153129,"Sodium-coupled neutral amino acid transporter 9 (Solute carrier family 38 member 9) (Up-regulated in lung cancer 11)
+",http://www.uniprot.org/uniprot/Q8NBW4
+Q7L523,0,0_10670,RRAGA,10670,"Ras-related GTP-binding protein A (Rag A) (RagA) (Adenovirus E3 14.7 kDa-interacting protein 1) (FIP-1)
+",http://www.uniprot.org/uniprot/Q7L523
+```
 <br />Enrichment table
 ```txt
 # Example
@@ -95,13 +104,13 @@ BioMart
 
 ### 4.1 Import all data into R
    ```R
-   #for all data file
-   tmp <- read.table(filepath,
-                          sep  = " ",
-                         fill=TRUE)
+   # For all data file 
+   
    tmp_genename <- read.table(filepath,
                           sep  ='\t',
                          fill=TRUE,stringsAsFactors = FALSE)
+   # For enrichment data, node data and edge data, we need to delete first line which is colname in original file
+   tmp_genename <- tmp_genename[2:nrow(tmp_genename),]
    ```
 
 ### 4.2 Update HGNC symbol 
@@ -180,6 +189,8 @@ for (i in 1:nrow(sej)) {
 ```
 
 ### 4.3 Final validation
+## 5 Create mapping tools
+gene -> complex another genes -> enrichment information -> edge information
 ## 5 Annotation  gene set
 First, we need to analyze our hu.MAP.
 
@@ -187,7 +198,7 @@ First, we need to analyze our hu.MAP.
 We need to know how number of subunit of complex distribution
 
 ```
-df <- matrix(0,nrow = ncol(dup_geno))
+df <- matrix(0,nrow = nrow(dup_geno))
 
 for (i in 1:nrow(dup_geno)){
           nSubunit <- 0
@@ -200,19 +211,70 @@ for (i in 1:nrow(dup_geno)){
               df[i,1] <- nSubunit}
      }
 
-hist(newdf,
-     
-     ylim=c(0,4000),col = "#3fafb388",
+hist(df[,1],
+     ylim=c(0,2000), breaks = 50,col = "#B22222",
      main = "Number of subunit of complex distribution",
      xlab = "number of subunit in a complex ",
      ylab = "Counts")
 ```
+![hist](./inst/img/numSubunit_analysis.Rplot.png)
 
+We also want to the distribution of pvalue in enrichments of complex.
+
+```
+#Build a dataframe to contain all pvalue
+df <- matrix(0,nrow(enrichment))
+
+for (i in 1:nrow(enrichment)){
+    if (!is.na(enrichment[i,2])){
+         df[n,1] <- as.numeric(enrichment[i,2])
+         n <- n + 1}}
+hist(df[,1],xlim = c(0, 0.055),ylim = c(0, 150000),breaks = 150000
+     ,col = "#D2691E",
+     main = "Distribution of p-value of complex's enrichment  ",
+     xlab = "p-value of a complex's enrichment ",
+     ylab = "Counts")
+```
 ### 5.2 Co-complex score statistics
-We want to know the distribution of co-complex
+We want to know the distribution of possibility score of all co-complex.
+```
+### score is the file containing co-complex possibility score which can be installed from "Protein Interaction Network with probability scores" in hu.MAP
 
+hist(score[,3], ylim = c(0,10000), breaks = 40
+     ,col = "#DAA520",
+     main = "Distribution of possibility score of co-complex  ",
+     xlab = "possibility score in a co-complex ",
+     ylab = "Counts")
+```
 ### 5.3 Network statistics
-we want
-###
+we want to the complexity of the intereaction in the  Network. First, we want to know how many edges there can be in one gene.
+
+```
+genelist <- matrix(0, nrow(enrichment),2)
+
+genelist <- as.data.frame(genelist)
+ n <- 1
+ 
+ for (i in 1:nrow(edge)){
+     firstID <- unlist(strsplit(edge[i,1],"_"))[2]
+     if ( ! firstID %in% genelist[,1]){
+         genelist[n,1] <- firstID
+         genelist[n,2] <- 1
+         n <- n + 1}
+     else {
+         location <- grep(firstID, genelist[,1])
+         genelist[location,2] <- genelist[location,2] + 1}
+     secondID <- unlist(strsplit(edge[i,3],"_"))[2]
+     if ( ! secondID %in% genelist[,1]){
+         genelist[n,1] <- secondID
+         genelist[n,2] <- 1
+         n <- n + 1}
+     else {
+         location <- grep(secondID, genelist[,1])
+         genelist[location,2] <- genelist[location,2] + 1}
+ }
+```
+Then, 
+
 ## 6 References
 ## 7 Acknowledgements
