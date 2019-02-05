@@ -460,6 +460,7 @@ main = "Zipf's law governing the hu.MAP network"
 ab <- lm(y ~ x)
 abline(ab, col = "#FF000077", lwd = 0.7)
 ```
+![zip_example_gene_list](./inst/img/zip_exampleGene.Rplot.png)
 ```
 # Get list of en highest degree
 x <- sort(dg, decreasing = TRUE)[1:10]
@@ -485,8 +486,7 @@ plot(graph,
      vertex.label = igraph::V(graph)$name,
      vertex.label.family = "sans")
 
-# we see several cliques (or near-cliques), possibly indicative of
-# physical complexes.
 ```
+![network_example_gene_list](./inst/img/example_network.Rplot.png)
 ## 6 References
 ## 7 Acknowledgements
