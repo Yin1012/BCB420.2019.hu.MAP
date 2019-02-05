@@ -13,4 +13,5 @@ Encoding: UTF-8
 LazyData: true
 Suggests:
     testthat
+    igraph
 RoxygenNote: 6.1.1
