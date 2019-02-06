@@ -280,7 +280,6 @@ for (i in 1:nrow(geneList)){
        
 
 ```
-### 4.3 Final validation
 
 ## 5 Annotation  gene set
 First, we need to analyze our hu.MAP.
@@ -450,6 +449,8 @@ cat(sprintf("\t%s\t(%s)\n", HGNC[xSet[x], "sym"], HGNC[xSet[x], "name"]))
  	#TPPP	(tubulin polymerization promoting protein)
  	#VAMP7	(vesicle associated membrane protein 7)
  	#VPS39	(VPS39, HOPS complex subunit)
+numExist <- length(exmSet) - x
+# There are 55 genes that both exist in example gene set and our edge list.
 # Get example genes that are contained in our mapping.
 
 firstCol <- which( mapping_tool[,2]  %in% intersect(mapping_tool[,4],exmSet) )
@@ -457,12 +458,31 @@ secondCol <- which( mapping_tool[,4]  %in% intersect(mapping_tool[,4],exmSet) )
 
 # Overlapping is the location of example gene
 exmEdgelistLocation <- intersect(firstCol,secondCol)
- exmEdgeList <- matrix("", length(exmEdgelistLocation),2)
+exmEdgeList <- matrix("", length(exmEdgelistLocation),2)
  
  for (i in 1:length(exmEdgelistLocation)){
      exmEdgeList[i,1] <- mapping_tool[exmEdgelistLocation[i],2]
      exmEdgeList[i,2] <- mapping_tool[exmEdgelistLocation[i],4]}
-     
+ # Create output that includes all complex it annotated to. 
+ m <- 1
+exmEdgeList <- matrix("", length(exmSet),2)
+for (i in 1:length(exmSet)){
+    complexList <- ""
+    for (n in 1:ncol(normal_genename)){
+        location <- which(exmSet[i] ==normal_genename[,n])
+                          if (length(location) != 0){
+                             
+                              
+                              for (m in length(location)){
+                                  paste(complexList,normal_genename[m,n],sep = ",")
+                              }}
+                              if (length(complexList) != 0){
+                           exmEdgeList[m,1] <- exmSet[i]
+                          exmEdgeList[m,2] <- complexList
+                          m <- m + 1}
+    }
+}
+         
  ```
 ### 5.5 Biological validation:network properties
 ```
