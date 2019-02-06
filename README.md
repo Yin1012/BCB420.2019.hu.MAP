@@ -18,6 +18,8 @@ The package serves dual duty, as an RStudio project, as well as an R package tha
    |__inst/
       |__extdata/
          |_mapping_tools.rds
+         |_edge_list_example_geneset.rds
+         |_complex_list_example_geneset.rds
       |__img/
          |__[...]                  # image sources for .md document
       |__scripts/
@@ -149,6 +151,7 @@ if (! requireNamespace("igraph")) {
   dbIDs <- biomaRt::getBM(attributes=c('entrezgene','hgnc_symbol'),mart = ensembl)
 
   # Check if genenames in the file is the same as in dbIDS
+  # normal_genename is the cluster_genename file from hu.MAP. You can import by following above step.
  sej <- matrix( ncol = 3)
  for (i in 1:20){
            for (n in 1:ncol(normal_genename)){
@@ -172,14 +175,14 @@ if (! requireNamespace("igraph")) {
     if (!is.na(iPrev)) {
         row <- as.numeric(sej[i, 2])
         col <- as.numeric(sej[i,3])
-        tmp_genename[row,col] <- HGNC$sym[iPrev]
+        normal_genename[row,col] <- HGNC$sym[iPrev]
         sej[i,1] <- "changed"
     } else {
         iSynonym <- grep(sej[i, 1], HGNC$synonym)[1]
         if (!is.na(iSynonym)) {
             row <- as.numeric(sej[i,2])
             col <- as.numeric(sej[i,3])
-            tmp_genename[row, col] <- HGNC$sym[iSynonym]
+            normal_genename[row, col] <- HGNC$sym[iSynonym]
             sej[i,1] <- "changed"
         }else {
             #The unsame symbols are gene IDS
@@ -187,7 +190,7 @@ if (! requireNamespace("igraph")) {
             if (!is.na(iGeneids)) {
                 row <- as.numeric(sej[i, 2])
                 col <- as.numeric(sej[i, 3])
-                tmp_genename[row, col] <- HGNC$sym[iGeneids]
+                normal_genename[row, col] <- HGNC$sym[iGeneids]
                 sej[i, 1] <- "changed"
             } else {
                 #The unsame symbols are ensembl ID
@@ -195,7 +198,7 @@ if (! requireNamespace("igraph")) {
                 if (!is.na(iEnsids)) {
                     row <- as.numeric(sej[i, 2])
                     col <- as.numeric(sej[i, 3])
-                    tmp_genename[row, col] <- HGNC$sym[iEnsids]
+                    normal_genename[row, col] <- HGNC$sym[iEnsids]
                     sej[i, 1] <- "changed"
                 }            
             }
@@ -206,7 +209,7 @@ Now, in ```sej``` we have left ids that cannot mapping to other known symbols. S
 for (i in 1:nrow(sej)) {
          if (!identical(sej[i,1], "changed")){row <- as.numeric(sej[i, 2])
         col <- as.numeric(sej[i, 3]) 
-    dup_geno[row, col] <- NA}}
+    normal_genename[row, col] <- NA}}
 ```
 ### 4.3 Create a mapping tool
 The mapping tool is created for recording gene ID and corresbonding HGNC symbol and the complex number that gene belong to. We will also include edge information into it.
@@ -217,7 +220,7 @@ mapping_tool <- matrix("", sum(genelist[,2]), 10 )
 geneMapping <- matrix("", 1, 3)
 for (i in 1:nrow(normal)){
     for (n in 1:ncol(normal)){
-        if (nchar(normal[i,n]) != 0){geneMapping <- rbind(geneMapping, c(normal[i,n], dup_geno[i,n], i,"","","","","","",""))}}
+        if (nchar(normal[i,n]) != 0){geneMapping <- rbind(geneMapping, c(normal[i,n], normal_genename[i,n], i,"","","","","","",""))}}
 }
 geneMapping <- geneMapping[2:nrow(geneMapping),]   
 
@@ -482,7 +485,25 @@ for (i in 1:length(exmSet)){
                           m <- m + 1}
     }
 }
-         
+
+# Create  complex list  for example gene set
+firstCol <- intersect(mapping_tool[,2],exmSet) 
+secondCol <- intersect(mapping_tool[,4],exmSet)
+existGene <- union(firstCol, secondCol)
+exmAllComplexList <- matrix("", length(existGene),2)
+for (i in 1:length(existGene)){
+    complexList <- ""
+    for (n in 1:ncol(normal_genename)){
+        location <- which(existGene[i] == normal_genename[,n])
+        if (length(location) != 0){                              
+            for (m in length(location)){
+                complexList <- paste(complexList,location[m],sep = " ")
+            }}}
+    if (complexList != ""){
+        exmAllComplexList[i,1] <- existGene[i]
+        exmAllComplexList[i,2] <- complexList
+    }
+}
  ```
 ### 5.5 Biological validation:network properties
 ```
